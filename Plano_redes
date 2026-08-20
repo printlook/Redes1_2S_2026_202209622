@@ -12,12 +12,12 @@
         <mxCell id="kSp3t5LTQlBOF64IjBnE-8" edge="1" parent="kSp3t5LTQlBOF64IjBnE-3" source="kSp3t5LTQlBOF64IjBnE-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kSp3t5LTQlBOF64IjBnE-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="kSp3t5LTQlBOF64IjBnE-6" parent="kSp3t5LTQlBOF64IjBnE-3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="MDF" vertex="1">
+        <mxCell id="kSp3t5LTQlBOF64IjBnE-6" parent="kSp3t5LTQlBOF64IjBnE-3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CC0000;dashed=1;opacity=70;verticalAlign=top;fontSize=9;fontStyle=1;fontColor=#000000;" value="MDF" vertex="1">
           <mxGeometry height="60" width="90" x="440" y="270" as="geometry" />
         </mxCell>
         <mxCell id="kSp3t5LTQlBOF64IjBnE-4" parent="0" value="horizontal" />
-        <mxCell id="kSp3t5LTQlBOF64IjBnE-9" parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/computers/Server_Rack_128x128.png" value="" vertex="1">
-          <mxGeometry height="80" width="80" x="470" y="250" as="geometry" />
+        <mxCell id="kSp3t5LTQlBOF64IjBnE-9" parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/computers/Server_Rack_128x128.png;" value="" vertex="1">
+          <mxGeometry height="40" width="30" x="470" y="290" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
