@@ -36,7 +36,10 @@
         <mxCell id="kSp3t5LTQlBOF64IjBnE-29" parent="kSp3t5LTQlBOF64IjBnE-3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CC0000;dashed=1;opacity=70;verticalAlign=top;fontSize=9;fontStyle=1;fontColor=#000000;" value="SW-DataCenter" vertex="1">
           <mxGeometry height="50" width="80" x="610" y="660" as="geometry" />
         </mxCell>
-        <mxCell id="kSp3t5LTQlBOF64IjBnE-32" parent="kSp3t5LTQlBOF64IjBnE-3" style="strokeColor=#ffffff;sketch=0;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.cisco.switches.fibre_channel_fabric_switch;verticalLabelPosition=bottom;verticalAlign=top;fontSize=8;fontStyle=1;fontColor=#000000;labelBackgroundColor=#FFFFFF;" value="" vertex="1">
+        <mxCell id="kSp3t5LTQlBOF64IjBnE-33" edge="1" parent="kSp3t5LTQlBOF64IjBnE-3" source="kSp3t5LTQlBOF64IjBnE-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kSp3t5LTQlBOF64IjBnE-27" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kSp3t5LTQlBOF64IjBnE-32" parent="kSp3t5LTQlBOF64IjBnE-3" style="strokeColor=#ffffff;sketch=0;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.cisco.switches.fibre_channel_fabric_switch;verticalLabelPosition=bottom;verticalAlign=top;fontSize=8;fontStyle=1;fontColor=#000000;labelBackgroundColor=#FFFFFF;" value="&lt;span style=&quot;font-size: 9px; white-space: normal; background-color: rgb(27, 29, 30);&quot;&gt;SW-Recepcion&lt;/span&gt;" vertex="1">
           <mxGeometry height="30" width="31" x="469.5" y="130" as="geometry" />
         </mxCell>
         <mxCell id="kSp3t5LTQlBOF64IjBnE-4" parent="0" value="horizontal" />
