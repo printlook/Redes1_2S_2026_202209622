@@ -16,6 +16,46 @@
         <mxCell id="kSp3t5LTQlBOF64IjBnE-9" parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/computers/Server_Rack_128x128.png;" value="" vertex="1">
           <mxGeometry height="40" width="30" x="450" y="300" as="geometry" />
         </mxCell>
+        <object label="" id="SW-RRHH">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="470" y="400" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-Recepcion">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="470" y="100" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-Capacitacion">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="580" y="100" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-Diseño">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="580" y="220" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-DirGeneral">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="580" y="340" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-Legal">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="470" y="550" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-Backend">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="580" y="550" as="geometry" />
+          </mxCell>
+        </object>
+        <object label="" id="SW-DataCenter">
+          <mxCell parent="kSp3t5LTQlBOF64IjBnE-4" style="image;html=1;image=img/lib/clip_art/networking/Switch_128x128.png" vertex="1">
+            <mxGeometry height="50" width="35" x="615" y="670" as="geometry" />
+          </mxCell>
+        </object>
       </root>
     </mxGraphModel>
   </diagram>
