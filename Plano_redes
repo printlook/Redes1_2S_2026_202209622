@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram id="topologia" name="Topologia Fisica">
-    <mxGraphModel dx="1172" dy="1392" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1360" pageHeight="770" background="#FFFFFF" math="0" shadow="0">
+    <mxGraphModel dx="1563" dy="1420" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1360" pageHeight="770" background="#FFFFFF" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -464,7 +464,7 @@
         <mxCell id="n168" parent="layerHosts" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0B0B0;fontFamily=Helvetica;fontSize=7;align=center;verticalAlign=top;fontStyle=0;fontColor=#1A1A1A;spacing=5;verticalAlign=middle;opacity=92;spacing=2;" value="8 host = 8" vertex="1">
           <mxGeometry height="15" width="108" x="312" y="326" as="geometry" />
         </mxCell>
-        <mxCell id="n169" parent="layerHosts" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0B0B0;fontFamily=Helvetica;fontSize=7;align=center;verticalAlign=top;fontStyle=0;fontColor=#1A1A1A;spacing=5;verticalAlign=middle;opacity=92;spacing=2;" value="4 host = 4" vertex="1">
+        <mxCell id="n169" parent="layerHosts" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0B0B0;fontFamily=Helvetica;fontSize=7;align=center;verticalAlign=top;fontStyle=0;fontColor=#1A1A1A;spacing=5;verticalAlign=middle;opacity=92;spacing=2;" value="2host = 2" vertex="1">
           <mxGeometry height="15" width="108" x="316" y="500" as="geometry" />
         </mxCell>
         <mxCell id="n170" parent="layerHosts" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B0B0B0;fontFamily=Helvetica;fontSize=7;align=center;verticalAlign=top;fontStyle=0;fontColor=#1A1A1A;spacing=5;verticalAlign=middle;opacity=92;spacing=2;" value="4 PC + 6 lap = 10" vertex="1">
