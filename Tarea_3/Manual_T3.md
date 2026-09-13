@@ -37,7 +37,7 @@ Versión de VTP: 2
 
 Topología armada en Packet Tracer:
 
-![Topología de la red](topologia.png)
+![Topología de la red](img/topologia.png)
 
 Cables:
 
@@ -230,7 +230,7 @@ servidor. En VENTAS el modo dice `Transparent` y la revisión se queda en 0, lo 
 
 Capturas:
 
-![show vtp status y show vlan brief en los cuatro switches](verificacion.png)
+![show vtp status y show vlan brief en los cuatro switches](img/verificacion.png)
 
 ### 5.2 show vlan brief
 
@@ -286,7 +286,7 @@ Ping statistics for 192.168.10.11:
     Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
 ```
 
-![Pings entre PCs de la misma VLAN y entre VLANs distintas](pings.png)
+![Pings entre PCs de la misma VLAN y entre VLANs distintas](img/pings.png)
 
 ### Ping fallido (distintas VLANs)
 
