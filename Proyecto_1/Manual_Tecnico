@@ -1,0 +1,359 @@
+# Proyecto 1 - SmartCity Tech Park
+
+Redes de Computadoras 1 - Segundo Semestre 2026
+Pablo Cutzal - 202209622
+
+Archivo de Packet Tracer: `Proyecto1_202209622.pkt`
+
+---
+
+## 1. Descripción
+
+La red del SmartCity Tech Park operaba de forma plana, lo que provocaba colisiones en el segmento industrial y mezclaba el tráfico administrativo con el de visitantes. Este proyecto la rediseña como una topología jerárquica en Packet Tracer: un switch core en el Centro de Datos y un switch de distribución por cada edificio. Sobre esa base se configuraron VLANs, VTP, EtherChannel, STP y la seguridad básica que pide el enunciado.
+
+Todo el trabajo es de capa 1 y capa 2. No hay enrutamiento entre VLANs, ningún equipo tiene gateway y ninguna interfaz de los switches tiene dirección IP asignada.
+
+## 2. Parámetros según carné
+
+Carné 202209622. El último dígito (X) es 2, el penúltimo también es 2, y el carné es par.
+
+| Parámetro | Valor |
+|---|---|
+| Dominio VTP | Smart_2 |
+| Contraseña VTP | proyecto12S2026 |
+| VLAN Gerencia | 12 - GERENCIA |
+| VLAN I+D | 22 - INVESTIGACION |
+| VLAN Producción | 32 - PRODUCCION |
+| VLAN Servidores | 42 - SERVIDORES |
+| VLAN Visitantes | 52 - VISITANTES |
+| VLAN nativa | 92 - NATIVA |
+| EtherChannel | LACP (carné par) |
+| STP | PVST (carné par) |
+| Banner MOTD | Acceso Restringido - TechPark_202209622 |
+
+## 3. Topología
+
+![Topología general](img/topologia.png)
+
+La red sigue un modelo jerárquico de tres niveles:
+
+- **Core:** CORE-DC, en el Centro de Datos. Es el único VTP Server y el punto donde convergen todos los edificios.
+- **Distribución:** DIST-ID, DIST-CORP y DIST-PROD, uno por edificio.
+- **Acceso:** los switches donde se conectan PCs, servidores, el hub legacy y el access point.
+
+### 3.1 Dispositivos
+
+| Área | Dispositivo | Modelo | Rol | Modo VTP |
+|---|---|---|---|---|
+| Centro de Datos | CORE-DC | 3650-24PS | Core | Server |
+| Centro de Datos | SW-SERV | 2960-24TT | Acceso servidores | Client |
+| Centro de Datos | SRV1 a SRV4 | Server-PT | Granja de servidores | - |
+| I+D | DIST-ID | 3650-24PS | Distribución | Client |
+| I+D | ACC-ID1, ACC-ID2 | 2960-24TT | Acceso | Client |
+| I+D | PC-ID1 a PC-ID8 | PC-PT | Estaciones de trabajo | - |
+| Corporativo | DIST-CORP | 3650-24PS | Distribución | Client |
+| Corporativo | ACC-CORP-A | 2960-24TT | Acceso ala A | Client |
+| Corporativo | ACC-CORP-B | 2960-24TT | Acceso ala B | Client |
+| Corporativo | PC-GER1 a PC-GER6 | PC-PT | Personal administrativo | - |
+| Corporativo | SW-COMUNES | 2960-24TT | Acceso áreas comunes | Transparent |
+| Corporativo | AP-VISITANTES | AccessPoint-PT | Wi-Fi de invitados | - |
+| Corporativo | PC-KIOSKO | PC-PT | Kiosko de visitantes | - |
+| Corporativo | LAP-INV1 a LAP-INV3 | Laptop-PT | Laptops de invitados | - |
+| Producción | DIST-PROD | 3650-24PS | Distribución | Client |
+| Producción | ACC-PROD | 2960-24TT | Acceso | Client |
+| Producción | HUB-LEGACY | Hub-PT | Segmento legacy | - |
+| Producción | MAQ1 a MAQ4 | PC-PT | Maquinaria industrial | - |
+| Producción | PC-SUPERV | PC-PT | Supervisor de planta | - |
+
+Los switches 3650 de Packet Tracer no traen fuente de poder, hay que agregarles el módulo AC-POWER-SUPPLY. Los que usan fibra llevan módulos GLC-LH-SMD en los puertos Gi1/1/x: cuatro en CORE-DC, tres en DIST-ID y uno en DIST-PROD.
+
+### 3.2 Tabla de conexiones
+
+| Origen | Puerto | Destino | Puerto | Medio | Nota |
+|---|---|---|---|---|---|
+| CORE-DC | Gi1/1/1 | DIST-ID | Gi1/1/1 | Fibra monomodo | Po2 |
+| CORE-DC | Gi1/1/2 | DIST-ID | Gi1/1/2 | Fibra monomodo | Po2 |
+| CORE-DC | Gi1/1/3 | DIST-ID | Gi1/1/3 | Fibra monomodo | Po2 |
+| CORE-DC | Gi1/1/4 | DIST-PROD | Gi1/1/1 | Fibra monomodo | Troncal sencilla |
+| CORE-DC | Gi1/0/1 | DIST-CORP | Gi1/0/1 | UTP Cat6 | Po3 |
+| CORE-DC | Gi1/0/2 | DIST-CORP | Gi1/0/2 | UTP Cat6 | Po3 |
+| CORE-DC | Gi1/0/3 | SW-SERV | Gi0/1 | UTP Cat6 | Po1 |
+| CORE-DC | Gi1/0/4 | SW-SERV | Gi0/2 | UTP Cat6 | Po1 |
+| DIST-ID | Gi1/0/1 | ACC-ID1 | Gi0/1 | UTP Cat6 | Troncal |
+| DIST-ID | Gi1/0/2 | ACC-ID2 | Gi0/1 | UTP Cat6 | Troncal |
+| ACC-ID1 | Gi0/2 | ACC-ID2 | Gi0/2 | UTP Cat6 | Redundancia I+D |
+| DIST-CORP | Gi1/0/3 | ACC-CORP-A | Gi0/1 | UTP Cat6 | Troncal |
+| DIST-CORP | Gi1/0/4 | ACC-CORP-B | Gi0/1 | UTP Cat6 | Troncal |
+| ACC-CORP-A | Gi0/2 | ACC-CORP-B | Gi0/2 | UTP Cat6 | Enlace entre alas |
+| DIST-CORP | Gi1/0/5 | SW-COMUNES | Gi0/1 | UTP Cat6 | Troncal solo VLAN 52 |
+| DIST-PROD | Gi1/0/1 | ACC-PROD | Gi0/1 | UTP Cat6 | Troncal |
+| ACC-PROD | Fa0/1 | HUB-LEGACY | Fa0 | UTP Cat6 | Segmento legacy |
+| HUB-LEGACY | Fa1 a Fa4 | MAQ1 a MAQ4 | Fa0 | UTP Cat6 | |
+| ACC-PROD | Fa0/2 | PC-SUPERV | Fa0 | UTP Cat6 | |
+| SW-SERV | Fa0/1 a Fa0/4 | SRV1 a SRV4 | Fa0 | UTP Cat6 | |
+| ACC-ID1 | Fa0/1 a Fa0/4 | PC-ID1 a PC-ID4 | Fa0 | UTP Cat6 | |
+| ACC-ID2 | Fa0/1 a Fa0/4 | PC-ID5 a PC-ID8 | Fa0 | UTP Cat6 | |
+| ACC-CORP-A | Fa0/1 a Fa0/3 | PC-GER1 a PC-GER3 | Fa0 | UTP Cat6 | |
+| ACC-CORP-B | Fa0/1 a Fa0/3 | PC-GER4 a PC-GER6 | Fa0 | UTP Cat6 | |
+| SW-COMUNES | Fa0/1 | AP-VISITANTES | Port 0 | UTP Cat6 | |
+| SW-COMUNES | Fa0/2 | PC-KIOSKO | Fa0 | UTP Cat6 | |
+| AP-VISITANTES | Port 1 | LAP-INV1 a LAP-INV3 | Wireless0 | Inalámbrico | SSID TechPark_Invitados |
+
+## 4. Medios de transmisión
+
+Para elegir el medio de cada enlace supuse estas distancias dentro del complejo:
+
+| Enlace | Distancia | Medio | Justificación |
+|---|---|---|---|
+| CORE-DC a DIST-ID | 250 m | Fibra monomodo (1000BASE-LX) | Supera el límite de 100 m del cobre. Además es el enlace con más carga del campus y la fibra permite crecer a 10G más adelante sin volver a cablear. |
+| CORE-DC a DIST-PROD | 400 m | Fibra monomodo (1000BASE-LX) | Aparte de la distancia, la planta tiene motores y maquinaria que generan interferencia electromagnética. La fibra es inmune a eso. |
+| CORE-DC a DIST-CORP | 60 m | UTP Cat6 | El Centro de Datos está junto al Edificio Corporativo. La distancia entra en los 90 m del cableado horizontal y Cat6 soporta 1 Gbps. Sale más barato que fibra. |
+| CORE-DC a SW-SERV | 3 m | UTP Cat6 | Están en el mismo rack. |
+| Enlaces internos de cada edificio | menos de 50 m | UTP Cat6 | Distancias cortas, 1 Gbps en los uplinks y 100 Mbps hacia equipos finales. |
+
+Hay una razón práctica adicional: el 3650 solo tiene cuatro ranuras SFP, así que las asigné a los dos edificios más lejanos (tres para I+D y una para Producción). El Corporativo, que está cerca, va por cobre.
+
+## 5. VTP
+
+Dominio `Smart_2`, contraseña `proyecto12S2026`.
+
+**CORE-DC en modo Server.** El enunciado establece que el Centro de Datos administra el dominio VTP de forma centralizada, así que las VLANs se crean únicamente ahí.
+
+**Distribución y acceso en modo Client.** Reciben las VLANs desde el core y no pueden crearlas ni borrarlas. Esto evita que alguien altere la base de VLANs desde un edificio.
+
+**SW-COMUNES en modo Transparent.** El enunciado exige que Áreas Comunes aísle la administración de VLANs del resto del campus. En modo transparent el switch no aprende ni propaga cambios de VTP, así que sus VLANs (52 y 92) se crearon localmente y cualquier cambio en el core no le afecta.
+
+![show vtp status en CORE-DC](img/vtp_core.png)
+
+![show vtp status en un cliente](img/vtp_cliente.png)
+
+La prueba de que VTP funciona es que en los switches cliente aparecen las seis VLANs sin haberlas creado ahí:
+
+![show vlan brief en un cliente](img/vlan_brief.png)
+
+## 6. VLANs y direccionamiento
+
+Como no hay router, los equipos no tienen gateway configurado. A cada VLAN le asigné una red /24 que reutiliza el número de la VLAN, para que sea fácil de identificar.
+
+| VLAN | Nombre | Ubicación | Red | Hosts |
+|---|---|---|---|---|
+| 12 | GERENCIA | Corporativo, alas A y B | 192.168.12.0/24 | PC-GER1 a PC-GER6: .11 a .16 |
+| 22 | INVESTIGACION | Centro de I+D | 192.168.22.0/24 | PC-ID1 a PC-ID8: .11 a .18 |
+| 32 | PRODUCCION | Planta de Producción | 192.168.32.0/24 | MAQ1 a MAQ4: .11 a .14; PC-SUPERV: .20 |
+| 42 | SERVIDORES | Centro de Datos | 192.168.42.0/24 | SRV1 a SRV4: .11 a .14 |
+| 52 | VISITANTES | Áreas Comunes | 192.168.52.0/24 | PC-KIOSKO: .10; LAP-INV1 a LAP-INV3: .11 a .13 |
+| 92 | NATIVA | Todas las troncales | - | Sin hosts |
+
+El aislamiento de visitantes se logra en dos niveles. Las troncales hacia el core solo permiten `1,12,22,32,42,92`, y la troncal DIST-CORP a SW-COMUNES solo permite la 52 y la 92. Así el tráfico de invitados no sale del Edificio Corporativo.
+
+## 7. EtherChannel
+
+| Port-channel | Entre | Puertos | Medio | Capacidad |
+|---|---|---|---|---|
+| Po1 | CORE-DC y SW-SERV | 2 x 1G | Cobre | 2 Gbps |
+| Po2 | CORE-DC y DIST-ID | 3 x 1G | Fibra | 3 Gbps |
+| Po3 | CORE-DC y DIST-CORP | 2 x 1G | Cobre | 2 Gbps |
+| (ninguno) | CORE-DC y DIST-PROD | 1 x 1G | Fibra | 1 Gbps |
+
+Justificación de dónde se aplicó:
+
+- **Po1:** los servidores críticos no pueden depender de un solo cable hacia el core. Si un enlace se cae, siguen accesibles.
+- **Po2:** el enunciado exige que la troncal de I+D soporte más ancho de banda que cualquier otra del campus. Con tres enlaces llega a 3 Gbps, por encima de los 2 Gbps de Po1 y Po3.
+- **Po3:** el Corporativo concentra el tráfico administrativo y el de visitantes, así que también necesita más de un enlace.
+- **Producción sin EtherChannel:** las máquinas legacy generan poco tráfico y están detrás de un hub que reparte su ancho de banda entre todas. Un segundo enlace no se aprovecharía.
+
+![show etherchannel summary](img/etherchannel.png)
+
+### 7.1 Nota sobre el protocolo de agregación
+
+Al carné par le corresponde LACP, y así se configuró inicialmente en ambos extremos con `channel-group N mode active`. Sin embargo, Packet Tracer no completó la negociación LACP: los tres Port-channel quedaron en estado `SD` con sus puertos marcados como `(s)` suspendidos y luego `(I)` stand-alone, pese a que la configuración era idéntica en los dos lados de cada enlace. Se verificó la simetría de las configuraciones con `show running-config` y se reiniciaron las interfaces con `shutdown` / `no shutdown` sin resultado.
+
+Para que la topología quedara operativa se forzó la agregación con `channel-group N mode on`, que arma el canal de forma estática sin negociación. Con eso los tres Port-channel pasaron a `SU` y sus puertos a `(P)`. La salida de `show etherchannel summary` sigue reportando LACP como protocolo del grupo.
+
+Se trata de una limitación del simulador en los puertos SFP y Gigabit del Catalyst 3650, no de un error de diseño. En equipo real la configuración LACP original habría negociado sin intervención.
+
+## 8. STP
+
+Todos los switches operan con `spanning-tree mode pvst`, que es el que corresponde al carné par.
+
+| VLAN | Root primario | Prioridad | Respaldo | Prioridad |
+|---|---|---|---|---|
+| 1, 92 | CORE-DC | 4096 | (por MAC) | 32768 |
+| 12 | CORE-DC | 4096 | DIST-CORP | 8192 |
+| 22 | CORE-DC | 4096 | DIST-ID | 8192 |
+| 32 | CORE-DC | 4096 | DIST-PROD | 8192 |
+| 42 | CORE-DC | 4096 | SW-SERV | 8192 |
+| 52 | DIST-CORP | 4096 | (por MAC) | 32768 |
+
+Justificación de la selección del Root Bridge:
+
+- CORE-DC está en el centro de la topología y es el switch de mayor capacidad. Al ser root, todos los caminos parten de él hacia los edificios y los puertos bloqueados quedan en los enlaces de redundancia entre switches de acceso, que es justamente lo que se busca.
+- Si no se fija la prioridad, STP elige el root por la MAC más baja y podría quedar como root un 2960 de acceso, haciendo que el tráfico dé rodeos innecesarios.
+- El respaldo de cada VLAN es el switch de distribución del edificio donde reside esa VLAN. Si el core falla, el edificio sigue operando con su switch de distribución como root en lugar de uno de acceso.
+- La VLAN 52 no se propaga hacia el core, por eso su root es DIST-CORP.
+
+![show spanning-tree en CORE-DC](img/stp_core.png)
+
+En CORE-DC la salida confirma `This bridge is the root` con prioridad 4118 para la VLAN 22 (4096 más el sys-id-ext de 22).
+
+El resultado en el acceso es el esperado: entre ACC-ID1 y ACC-ID2 uno de los puertos Gi0/2 queda en estado bloqueado, y lo mismo entre ACC-CORP-A y ACC-CORP-B. Cuál de los dos lados se bloquea depende de la MAC de cada switch.
+
+![Puerto en estado Altn BLK](img/stp_bloqueado.png)
+
+![show spanning-tree general](img/show_stp.png)
+
+## 9. Seguridad básica
+
+- Banner MOTD `Acceso Restringido - TechPark_202209622` configurado en DIST-ID, DIST-CORP y DIST-PROD, y también en CORE-DC.
+- VLAN nativa 92 en todas las troncales del campus, incluidas las internas de cada edificio y las de los Port-channel, en lugar de la VLAN 1 por defecto.
+- En el puerto que conecta al hub legacy: port-security con máximo de 5 direcciones MAC y BPDU Guard.
+
+![Banner MOTD](img/banner.png)
+
+![show interfaces trunk en CORE-DC](img/trunk_core.png)
+
+![show interfaces trunk en DIST-CORP](img/trunk_distcorp.png)
+
+## 10. Dominios de colisión
+
+Cada puerto activo de un switch constituye un dominio de colisión independiente. Un hub no separa nada: todo lo conectado a él, incluido el puerto del switch donde se conecta, comparte un solo dominio.
+
+| Switch | Puertos activos | Detalle | Dominios que genera |
+|---|---|---|---|
+| CORE-DC | 8 | Gi1/0/1-2 (Po3), Gi1/0/3-4 (Po1), Gi1/1/1-3 (Po2), Gi1/1/4 | 8 |
+| SW-SERV | 6 | Gi0/1-2 (Po1), Fa0/1-4 | 6 |
+| DIST-ID | 5 | Gi1/1/1-3 (Po2), Gi1/0/1-2 | 5 |
+| ACC-ID1 | 6 | Gi0/1, Gi0/2, Fa0/1-4 | 6 |
+| ACC-ID2 | 6 | Gi0/1, Gi0/2, Fa0/1-4 | 6 |
+| DIST-CORP | 5 | Gi1/0/1-2 (Po3), Gi1/0/3-5 | 5 |
+| ACC-CORP-A | 5 | Gi0/1, Gi0/2, Fa0/1-3 | 5 |
+| ACC-CORP-B | 5 | Gi0/1, Gi0/2, Fa0/1-3 | 5 |
+| SW-COMUNES | 3 | Gi0/1, Fa0/1, Fa0/2 | 3 |
+| DIST-PROD | 2 | Gi1/1/1, Gi1/0/1 | 2 |
+| ACC-PROD | 3 | Gi0/1, Fa0/1, Fa0/2 | 3 |
+| **Suma** | | | **54** |
+
+Un enlace entre dos switches constituye un único dominio, aunque aparezca contado en ambos switches. Hay 16 enlaces switch a switch, contando cada cable de los Port-channel por separado:
+
+**Dominios de colisión únicos = 54 - 16 = 38**
+
+De esos 38, hay 37 dominios dedicados en full dúplex (sin colisiones en la práctica) y 1 dominio compartido:
+
+| Dominio compartido | Integrantes |
+|---|---|
+| Segmento Legacy | ACC-PROD Fa0/1, HUB-LEGACY, MAQ1, MAQ2, MAQ3, MAQ4 |
+
+Adicionalmente, las tres laptops de visitantes comparten el medio inalámbrico del access point. Ahí no aplica CSMA/CD sino CSMA/CA, pero sigue siendo un medio compartido.
+
+## 11. Dominios de broadcast
+
+Cada VLAN constituye un dominio de broadcast. Los switches no propagan broadcasts entre VLANs y no hay router que las interconecte.
+
+| # | VLAN | Nombre | Switches con hosts | Hosts |
+|---|---|---|---|---|
+| 1 | 12 | GERENCIA | ACC-CORP-A, ACC-CORP-B | 6 PCs |
+| 2 | 22 | INVESTIGACION | ACC-ID1, ACC-ID2 | 8 PCs |
+| 3 | 32 | PRODUCCION | ACC-PROD (incluye el hub) | 4 máquinas y 1 PC |
+| 4 | 42 | SERVIDORES | SW-SERV | 4 servidores |
+| 5 | 52 | VISITANTES | SW-COMUNES y el AP | 1 PC y 3 laptops |
+
+**Total: 5 dominios de broadcast activos.** Las VLANs 1 y 92 existen en los switches pero no tienen hosts asignados.
+
+## 12. Segmento Legacy: impacto y contención
+
+### Impacto sobre el rendimiento
+
+El hub opera en capa 1: repite por todos sus puertos lo que recibe por cualquiera de ellos. Por eso las cuatro máquinas y el puerto Fa0/1 de ACC-PROD forman un único dominio de colisión que trabaja en half dúplex con CSMA/CD. Las consecuencias son:
+
+- Solo un equipo puede transmitir a la vez. Si dos coinciden se produce una colisión, se envía la señal de jam y ambos esperan un tiempo aleatorio (backoff) antes de reintentar.
+- El ancho de banda del hub se reparte entre todas las máquinas, no es dedicado para cada una como en un switch.
+- Mientras más equipos se conecten o más tráfico generen, más colisiones ocurren, y el rendimiento cae más rápido de lo que crece el número de equipos.
+- Todas las máquinas ven el tráfico de las demás, lo que también representa un problema de seguridad.
+
+El aspecto positivo es que el switch corta el problema en su puerto Fa0/1: las colisiones no se propagan al resto de la red, porque cada puerto del switch es su propio dominio. Los broadcasts sí se propagan, pero limitados a la VLAN 32.
+
+### Medidas de contención en ACC-PROD
+
+| Medida | Comando | Qué mitiga |
+|---|---|---|
+| VLAN dedicada | `switchport access vlan 32` | Los broadcasts de las máquinas no salen de la VLAN de Producción |
+| Port Security | `switchport port-security maximum 5` con `violation restrict` | Limita cuántos equipos pueden colgarse del hub, evitando que el dominio compartido crezca sin control |
+| BPDU Guard | `spanning-tree bpduguard enable` | Si alguien conecta un switch al hub, el puerto se deshabilita y se evita un bucle |
+| PortFast | `spanning-tree portfast` | El puerto pasa directo a forwarding y las máquinas no pierden conexión 30 segundos ante cada cambio de topología |
+| Monitoreo | `show interfaces fa0/1` | Permite revisar los contadores de collisions y late collision para detectar cuándo el segmento se satura |
+
+Ninguna de estas medidas elimina el dominio de colisión. Eso solo se resuelve sustituyendo el hub por un switch cuando la maquinaria pueda migrarse.
+
+## 13. Evidencia de pruebas
+
+### Pings exitosos dentro de la misma VLAN
+
+| Origen | Destino | VLAN | Resultado |
+|---|---|---|---|
+| PC-ID1 (192.168.22.11) | PC-ID8 (192.168.22.18) | 22 | Exitoso |
+| PC-GER1 (192.168.12.11) | PC-GER6 (192.168.12.16) | 12 | Exitoso |
+| SRV1 (192.168.42.11) | SRV4 (192.168.42.14) | 42 | Exitoso |
+| MAQ1 (192.168.32.11) | PC-SUPERV (192.168.32.20) | 32 | Exitoso |
+| LAP-INV1 (192.168.52.11) | PC-KIOSKO (192.168.52.10) | 52 | Exitoso |
+
+Los dos primeros son los más relevantes: PC-ID1 y PC-ID8 están en switches de acceso distintos, y PC-GER1 y PC-GER6 están en alas distintas del edificio. Ambos casos demuestran que la troncal y el enlace redundante funcionan.
+
+![Pings exitosos](img/ping_ok.png)
+
+### Pings fallidos entre VLANs distintas
+
+| Origen | Destino | Resultado |
+|---|---|---|
+| PC-GER1 (VLAN 12) | SRV1 (192.168.42.11, VLAN 42) | Falla |
+| LAP-INV1 (VLAN 52) | PC-GER1 (192.168.12.11, VLAN 12) | Falla |
+
+![Pings fallidos](img/ping_fail.png)
+
+Estos fallos son el comportamiento esperado. Al no existir enrutamiento entre VLANs, el aislamiento es total.
+
+### Prueba de redundancia
+
+Se desactivó un enlace para verificar la convergencia de STP:
+
+| Prueba | Resultado |
+|---|---|
+| `shutdown` en CORE-DC Gi1/1/1 | Po2 permanece en SU con dos puertos activos. El enlace hacia I+D sigue operando con menor capacidad. |
+| `shutdown` en DIST-ID Gi1/0/1 | ACC-ID1 pierde su uplink directo, el puerto Gi0/2 pasa de BLK a FWD y la comunicación se restablece a través de ACC-ID2. |
+| `shutdown` en DIST-CORP Gi1/0/3 | El ala A mantiene comunicación con el ala B por el enlace entre alas. |
+
+![Prueba de redundancia](img/redundancia.png)
+
+## 14. Presupuesto
+
+Tipo de cambio utilizado: Q7.70 por dólar. Los precios de switches y módulos corresponden a revendedores de equipo Cisco, no a precio de lista. El cable UTP es precio de tienda local. Los ítems marcados con asterisco son estimaciones que requieren cotización con un proveedor especializado en fibra.
+
+| Equipo o material | Cantidad | Precio unitario | Subtotal |
+|---|---|---|---|
+| Switch Cisco Catalyst WS-C3650-24PS-S | 4 | Q9,240.00 | Q36,960.00 |
+| Switch Cisco Catalyst WS-C2960-24TT-L | 7 | Q3,920.15 | Q27,441.03 |
+| Módulo SFP Cisco GLC-LH-SMD (1000BASE-LX) | 8 | Q746.90 | Q5,975.20 |
+| Bobina UTP Cat6 305 m | 4 | Q1,561.00 | Q6,244.00 |
+| Conectores RJ45 Cat6 (bolsa de 100) y botas* | 1 | Q350.00 | Q350.00 |
+| Cable de fibra monomodo OS2 exterior 12 hilos (metro)* | 720 | Q15.00 | Q10,800.00 |
+| Patch cord de fibra LC-LC dúplex OS2 3 m* | 8 | Q125.00 | Q1,000.00 |
+| Distribuidor de fibra (ODF) 19" LC* | 3 | Q950.00 | Q2,850.00 |
+| Fusión, terminación y certificación de fibra* | 1 | Q3,500.00 | Q3,500.00 |
+| **Total** | | | **Q95,120.23** |
+
+Criterios de cantidad:
+
+- **Fibra:** 250 m hacia I+D más 400 m hacia Producción son 650 m, y con un 10 % de holgura quedan aproximadamente 720 m. Los cables de 12 hilos dejan hilos de reserva para crecimiento futuro.
+- **Módulos SFP:** cuatro en CORE-DC, tres en DIST-ID y uno en DIST-PROD.
+- **UTP:** alrededor de 1,040 m sumando enlaces entre switches, equipos finales y máquinas del hub, de ahí las cuatro bobinas.
+- El hub legacy no se presupuesta porque es equipo existente en la planta.
+
+Referencias de precios:
+
+- https://ormsystems.com/ws-c3650-24ps-s-price.html
+- https://ormsystems.com/ws-c2960-24tt-l-price.html
+- https://ormsystems.com/glc-lh-smd-price.html
+- https://www.kemik.gt/bobina-de-cable-rj-45-cat-6-305m-1000pies-color-azul-marca-nexxt
+
+## 15. Verificación de ausencia de capa 3
+
+Aunque los switches 3650 son multicapa, la implementación se mantuvo estrictamente en capa 2. No se configuró `ip routing`, ninguna interfaz VLAN tiene dirección IP, ningún puerto se convirtió a modo `no switchport` y los equipos finales no tienen gateway. La salida de `show ip interface brief` en los switches muestra todas las interfaces como `unassigned`.
