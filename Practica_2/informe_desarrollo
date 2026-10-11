@@ -1,0 +1,130 @@
+# Informe de Desarrollo – Práctica 2
+
+**Estudiante:** Pablo Isai Matusalen Cutzal Mazariegos – 202209622
+**Curso:** Redes de Computadoras 1, 2S2026
+
+## 1. Cómo hice la práctica
+
+1. Primero investigué las zonas de Cayalá y escogí Paseo Cayalá, Distrito Moda, Lirios de Cayalá, Distrito Empresarial y el Centro de Convenciones. A cada una le asigné la cantidad de hosts de la tabla del enunciado según qué tanto movimiento tiene.
+2. Con eso decidí qué zonas eran críticas (Paseo y Distrito Empresarial, y Distrito Moda por ser comercial) y les di 2 caminos hacia la red. Lirios y Convenciones quedaron en estrella con un solo enlace.
+3. Calculé el VLSM sobre 192.168.2.0/24 empezando por la red más grande (60 hosts) hasta la más pequeña.
+4. Armé la topología en Packet Tracer: 2 switches 3560 (SWP-Z1 y SWP-Z4) y 11 switches 2960, 18 PCs, 1 Access Point y 2 laptops.
+5. Configuré todo por CLI en este orden: SWP-Z4 primero (porque ahí se crean las VLANs), luego la Parte A de los demás switches, verifiqué que VTP propagara las VLANs y después la Parte B (puertos de acceso, blackhole, prioridades STP y administración).
+6. Antes de activar `ip routing` en SWP-Z4 hice la prueba de aislamiento entre VLANs. Después lo activé y probé conectividad entre todas las zonas.
+
+## 2. Problemas encontrados y soluciones
+
+| Problema | Causa | Solución |
+|---|---|---|
+| En los 3560 el comando `switchport mode trunk` daba error | El 3560 soporta ISL y 802.1Q, entonces pide definir el encapsulamiento | Poner `switchport trunk encapsulation dot1q` antes de `switchport mode trunk` |
+| Al asignar puertos a la VLAN 999 en los clientes VTP decía que la VLAN no existía | Pegué la configuración antes de que VTP terminara de propagar las VLANs | Separé el script en Parte A y Parte B, y la Parte B la pegué hasta ver las VLANs en `show vlan brief` |
+| Mensajes de `%CDP-4-NATIVE_VLAN_MISMATCH` | Un lado del trunk ya tenía nativa 99 y el otro todavía la 1 | Configurar la nativa 99 en los dos extremos, el mensaje se quita solo |
+| El Port-channel no levantaba | Los puertos miembros no tenían la misma configuración que la interfaz Port-channel | Dejar igual modo trunk, nativa y VLANs permitidas en los miembros y en el Port-channel |
+| Los primeros pings fallaban (salía 1 o 2 Request timed out) | ARP todavía no tenía la MAC del gateway | Es normal, al repetir el ping ya responde 4/4 |
+| Las laptops no se conectaban al AP | Tenían la tarjeta cableada de fábrica | Apagar la laptop, quitar el módulo PT-LAPTOP-NM-1CFE, poner WPC300N y configurar el SSID |
+
+Estado de SWP-Z3 antes de aplicarle la configuración: sin dominio VTP y solo con la VLAN 1, por eso la Parte B no se podía pegar hasta que VTP propagara las VLANs.
+
+![SWP-Z3 sin configurar](img/2.png)
+
+Mensajes de `%CDP-4-NATIVE_VLAN_MISMATCH` y `%SPANTREE-2-BLOCK_PVID_LOCAL` en SWP-Z4 mientras los vecinos todavía tenían la nativa 1:
+
+![Native VLAN mismatch 1](img/1.png)
+
+![Native VLAN mismatch 2](img/3.png)
+
+## 3. Pruebas
+
+### 3.1 Aislamiento entre VLANs (antes de `ip routing`)
+
+| # | Origen | Destino | Resultado esperado |
+|---|---|---|---|
+| A1 | PC-Z1-1 (192.168.2.10) | PC-Z2-1 (192.168.2.140) | Falla |
+| A2 | PC-Z3-1 (192.168.2.165) | PC-Z5-1 (192.168.2.180) | Falla |
+
+### 3.2 Conectividad dentro de cada zona (intra-VLAN)
+
+| # | Origen | Destino | Resultado |
+|---|---|---|---|
+| 1 | PC-Z1-1 | PC-Z1-6 | Exitoso |
+| 2 | PC-Z1-3 | LAP-Z1-1 | Exitoso |
+| 3 | PC-Z2-1 | PC-Z2-4 | Exitoso |
+| 4 | PC-Z3-1 | PC-Z3-2 | Exitoso |
+| 5 | PC-Z4-1 | PC-Z4-3 | Exitoso |
+| 6 | PC-Z5-1 | PC-Z5-2 | Exitoso |
+
+### 3.3 Conectividad entre zonas (después de `ip routing`)
+
+| # | Origen | Destino | Resultado |
+|---|---|---|---|
+| 7 | PC-Z1-1 | PC-Z2-1 | Exitoso |
+| 8 | PC-Z1-5 | PC-Z4-2 | Exitoso |
+| 9 | PC-Z2-3 | PC-Z3-1 | Exitoso |
+| 10 | PC-Z3-2 | PC-Z5-1 | Exitoso |
+| 11 | PC-Z4-4 | PC-Z5-2 | Exitoso |
+| 12 | LAP-Z1-2 | PC-Z3-1 | Exitoso |
+
+Ping de Z1-1 (VLAN 12) a PC-Z2-1 (192.168.2.140, VLAN 22):
+
+![Ping entre zonas](img/4.png)
+
+Ping entre zonas y dentro de la misma zona (192.168.2.140 y 192.168.2.15):
+
+![Ping entre zonas e intra-VLAN](img/5.png)
+
+### 3.4 Pruebas de redundancia
+
+| # | Prueba | Resultado |
+|---|---|---|
+| R1 | Desconectar un cable del Po1 y hacer ping de PC-Z1-1 a PC-Z4-1 | Sigue respondiendo, Po1 queda con 1 puerto |
+| R2 | Desconectar SWP-Z1 – SWA-Z1-1 y hacer ping de PC-Z1-1 a PC-Z1-5 | Sigue respondiendo por el otro lado del anillo |
+| R3 | Desconectar SWP-Z2 – SWP-Z1 y hacer ping de PC-Z2-1 a PC-Z1-1 | Responde por SWP-Z4 |
+
+### 3.5 Capturas de verificación
+
+`show ip route` en SWP-Z4:
+
+![show ip route](img/showiproute.png)
+
+`show vlan brief`:
+
+![show vlan brief](img/show%20vlan%20brief%20cualquiera.png)
+
+`show vtp status` en el servidor:
+
+![show vtp status server](img/show%20vtp%20status.png)
+
+`show vtp status` en los clientes:
+
+![show vtp status client](img/show%20vtp%20status%20client.png)
+
+![show vtp status SWA-Z1-1](img/show%20vtp%20statusclientz1-1.png)
+
+`show interfaces trunk`:
+
+![show interfaces trunk](img/show%20interfaces%20trunk.png)
+
+`show spanning-tree vlan 12`:
+
+![show spanning-tree vlan 12](img/show%20spanning-tree%20vlan%2012.png)
+
+`show spanning-tree vlan 42`:
+
+![show spanning-tree vlan 42](img/show%20spanning-tree%20vlan%2042.png)
+
+`show etherchannel summary`:
+
+![show etherchannel summary](img/show%20etherchannel%20summary.png)
+
+## 4. ARP e ICMP en modo simulación
+
+En modo simulación filtré solo ARP e ICMP. En el primer ping de PC-Z1-1 a PC-Z2-1 la PC primero manda un ARP broadcast preguntando por la MAC de su gateway (192.168.2.1). Ese broadcast solo recorre la VLAN 12, no llega a ninguna otra zona. SWP-Z4 responde, y ya con la MAC la PC manda el ICMP Echo Request al gateway. SWP-Z4 lo enruta a la VLAN 22, hace su propio ARP para encontrar a PC-Z2-1 y le entrega el paquete. La respuesta regresa por el mismo camino. En el segundo ping ya no aparece ARP porque las tablas ya tienen las MAC.
+
+![Modo simulación](img/simulacion.png)
+
+## 5. Conclusiones
+
+- Separar la red en VLANs por zona reduce el broadcast y permite controlar por dónde pasa cada VLAN.
+- No todas las zonas necesitan lo mismo, combinar malla y estrella permitió dar redundancia solo donde hacía falta.
+- El EtherChannel con LACP le da más ancho de banda a la zona con más hosts y si se cae un cable el canal sigue arriba sin esperar a STP.
+- Rapid PVST+ con prioridades fijas deja claro cuál switch es la raíz de cada VLAN y evita que el root se elija al azar por MAC.

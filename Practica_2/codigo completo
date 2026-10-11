@@ -1,0 +1,879 @@
+!======================================================================
+! PRACTICA 2 - RED CIUDAD CAYALA - CARNET 202209622
+! Todo el codigo CLI en un solo archivo. Pegar en el ORDEN de las fases.
+!======================================================================
+
+!======================================================================
+! FASE 1 - SOLO SWP-Z4 (crea las VLANs)
+!======================================================================
+
+!----------------------------------------------------------------------
+! >>> SWP-Z4  (clic en SWP-Z4 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWP-Z4
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWP-Z4 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode server
+vtp domain 202209622
+vtp password Cayala2026
+vtp version 2
+vlan 12
+ name PASEO_CAYALA
+vlan 22
+ name DISTRITO_MODA
+vlan 32
+ name LIRIOS_RESIDENCIAL
+vlan 42
+ name DISTRITO_EMPRESARIAL
+vlan 52
+ name CENTRO_CONVENCIONES
+vlan 99
+ name NATIVA_ADMIN
+vlan 999
+ name BLACKHOLE
+ exit
+spanning-tree mode rapid-pvst
+interface range gi0/1-2
+ description Po1 hacia SWP-Z1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ channel-group 1 mode active
+ no shutdown
+ exit
+interface port-channel 1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ exit
+interface fa0/1
+ description Hacia SWP-Z2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ no shutdown
+ exit
+interface fa0/2
+ description Hacia SWP-Z3
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 32,99
+ no shutdown
+ exit
+interface fa0/3
+ description Hacia SWP-Z5
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 52,99
+ no shutdown
+ exit
+interface range fa0/4-5
+ description Po2 hacia SWA-Z4-1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ channel-group 2 mode active
+ no shutdown
+ exit
+interface port-channel 2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ exit
+interface range fa0/6-7
+ description Po3 hacia SWA-Z4-2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ channel-group 3 mode active
+ no shutdown
+ exit
+interface port-channel 3
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ exit
+end
+write memory
+
+!======================================================================
+! FASE 2 - PARTE A EN LOS DEMAS SWITCHES
+! Al terminar revisar en cada uno: show vlan brief (deben salir 12,22,32,42,52,99,999)
+!======================================================================
+
+!----------------------------------------------------------------------
+! >>> SWP-Z1  (clic en SWP-Z1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWP-Z1
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWP-Z1 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode server
+vtp domain 202209622
+vtp password Cayala2026
+vtp version 2
+spanning-tree mode rapid-pvst
+interface range gi0/1-2
+ description Po1 hacia SWP-Z4
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ channel-group 1 mode active
+ no shutdown
+ exit
+interface port-channel 1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ exit
+interface fa0/1
+ description Hacia SWP-Z2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ no shutdown
+ exit
+interface fa0/2
+ description Anillo hacia SWA-Z1-1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+interface fa0/3
+ description Anillo hacia SWA-Z1-3
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z2  (clic en SWP-Z2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWP-Z2
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWP-Z2 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode server
+vtp domain 202209622
+vtp password Cayala2026
+vtp version 2
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Hacia SWP-Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ no shutdown
+ exit
+interface fa0/2
+ description Hacia SWP-Z4
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,22,99
+ no shutdown
+ exit
+interface fa0/3
+ description Hacia SWA-Z2-1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 22,99
+ no shutdown
+ exit
+interface fa0/4
+ description Hacia SWA-Z2-2
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 22,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z3  (clic en SWP-Z3 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWP-Z3
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWP-Z3 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode server
+vtp domain 202209622
+vtp password Cayala2026
+vtp version 2
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Hacia SWP-Z4
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 32,99
+ no shutdown
+ exit
+interface fa0/2
+ description Hacia SWA-Z3-1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 32,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z5  (clic en SWP-Z5 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWP-Z5
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWP-Z5 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode server
+vtp domain 202209622
+vtp password Cayala2026
+vtp version 2
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Hacia SWP-Z4
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 52,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z1-1  (clic en SWA-Z1-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z1-1
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z1-1 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Anillo Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+interface fa0/2
+ description Anillo Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z1-2  (clic en SWA-Z1-2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z1-2
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z1-2 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Anillo Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+interface fa0/2
+ description Anillo Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z1-3  (clic en SWA-Z1-3 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z1-3
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z1-3 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Anillo Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+interface fa0/2
+ description Anillo Z1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 12,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z4-1  (clic en SWA-Z4-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z4-1
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z4-1 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface range fa0/1-2
+ description Po2 hacia SWP-Z4
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ channel-group 2 mode active
+ no shutdown
+ exit
+interface port-channel 2
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z4-2  (clic en SWA-Z4-2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z4-2
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z4-2 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface range fa0/1-2
+ description Po3 hacia SWP-Z4
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ channel-group 3 mode active
+ no shutdown
+ exit
+interface port-channel 3
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 42,99
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z2-1  (clic en SWA-Z2-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z2-1
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z2-1 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Uplink a switch principal
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 22,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z2-2  (clic en SWA-Z2-2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z2-2
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z2-2 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Uplink a switch principal
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 22,99
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z3-1  (clic en SWA-Z3-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+hostname SWA-Z3-1
+no ip domain-lookup
+banner motd #Red Ciudad Cayala - SWA-Z3-1 - Acceso restringido#
+line console 0
+ logging synchronous
+ exit
+vtp mode client
+vtp domain 202209622
+vtp password Cayala2026
+spanning-tree mode rapid-pvst
+interface fa0/1
+ description Uplink a switch principal
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 32,99
+ no shutdown
+ exit
+end
+write memory
+
+!======================================================================
+! FASE 3 - PARTE B EN TODOS (puertos de PCs, blackhole, STP, IP admin)
+!======================================================================
+
+!----------------------------------------------------------------------
+! >>> SWP-Z4  (clic en SWP-Z4 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+spanning-tree vlan 42,99 priority 4096
+spanning-tree vlan 12,22,32,52 priority 8192
+interface range fa0/8-24
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 12
+ ip address 192.168.2.1 255.255.255.192
+ no shutdown
+interface vlan 42
+ ip address 192.168.2.65 255.255.255.192
+ no shutdown
+interface vlan 22
+ ip address 192.168.2.129 255.255.255.224
+ no shutdown
+interface vlan 32
+ ip address 192.168.2.161 255.255.255.240
+ no shutdown
+interface vlan 52
+ ip address 192.168.2.177 255.255.255.240
+ no shutdown
+interface vlan 99
+ ip address 192.168.2.193 255.255.255.240
+ no shutdown
+ exit
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z1  (clic en SWP-Z1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+spanning-tree vlan 12 priority 4096
+interface range fa0/4-24
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.194 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z2  (clic en SWP-Z2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+spanning-tree vlan 22 priority 4096
+interface range fa0/5-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.195 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z3  (clic en SWP-Z3 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+spanning-tree vlan 32 priority 4096
+interface range fa0/3-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.196 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWP-Z5  (clic en SWP-Z5 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+spanning-tree vlan 52 priority 4096
+interface range fa0/10-11
+ description PCs Centro Convenciones
+ switchport mode access
+ switchport access vlan 52
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/2-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.197 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z1-1  (clic en SWA-Z1-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Paseo Cayala
+ switchport mode access
+ switchport access vlan 12
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/3-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.198 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z1-2  (clic en SWA-Z1-2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Paseo Cayala
+ switchport mode access
+ switchport access vlan 12
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/12
+ description Access Point Paseo
+ switchport mode access
+ switchport access vlan 12
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/3-9, fa0/13-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.199 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z1-3  (clic en SWA-Z1-3 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Paseo Cayala
+ switchport mode access
+ switchport access vlan 12
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/3-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.200 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z4-1  (clic en SWA-Z4-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Distrito Empresarial
+ switchport mode access
+ switchport access vlan 42
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/3-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.201 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z4-2  (clic en SWA-Z4-2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Distrito Empresarial
+ switchport mode access
+ switchport access vlan 42
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/3-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.202 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z2-1  (clic en SWA-Z2-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Distrito Moda
+ switchport mode access
+ switchport access vlan 22
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/2-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.203 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z2-2  (clic en SWA-Z2-2 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Distrito Moda
+ switchport mode access
+ switchport access vlan 22
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/2-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.204 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!----------------------------------------------------------------------
+! >>> SWA-Z3-1  (clic en SWA-Z3-1 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+interface range fa0/10-11
+ description PCs Lirios de Cayala
+ switchport mode access
+ switchport access vlan 32
+ spanning-tree portfast
+ no shutdown
+ exit
+interface range fa0/2-9, fa0/12-24, gi0/1-2
+ description NO USADO - BLACKHOLE
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+ exit
+interface vlan 99
+ ip address 192.168.2.205 255.255.255.240
+ no shutdown
+ exit
+ip default-gateway 192.168.2.193
+end
+write memory
+
+!======================================================================
+! FASE 4 - SOLO SWP-Z4, DESPUES de la captura de aislamiento
+!======================================================================
+
+!----------------------------------------------------------------------
+! >>> SWP-Z4  (clic en SWP-Z4 -> CLI -> escribir 'no' -> Enter -> pegar)
+!----------------------------------------------------------------------
+enable
+configure terminal
+ip routing
+end
+write memory
+
+!======================================================================
+! COMANDOS DE VERIFICACION (para capturas)
+!======================================================================
+show vlan brief
+show vtp status
+show interfaces trunk
+show spanning-tree vlan 12
+show spanning-tree summary
+show etherchannel summary
+show ip interface brief
+show ip route
